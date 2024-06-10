@@ -5,8 +5,8 @@ def train_model( model, loader, optimizer, scheduler, device='cpu' ):
     loss_function = torch.nn.BCEWithLogitsLoss()
     model_loss = 0.0
 
-    for g, fp, label, name in loader:
-        pred_value = model( g.to(device), fp.to(device) )
+    for g, label, n in loader:
+        pred_value = model( g.to(device) )
         true_value = label.to(device)
 
         loss = loss_function( pred_value, true_value )
@@ -31,8 +31,8 @@ def valid_model( model, loader, device='cpu' ):
     true = []
     name = []
     with torch.no_grad():
-        for g, fp, label, n in loader:
-            pred_value = model( g.to(device), fp.to(device) )
+        for g, label, n in loader:
+            pred_value = model( g.to(device) )
             true_value = label.to(device)
 
             loss = loss_function( pred_value, true_value )

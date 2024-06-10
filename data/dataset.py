@@ -4,40 +4,25 @@ from dgl.data import DGLDataset
 from dgl.data.utils import load_graphs
 
 class MSPDataset(DGLDataset):
-    def __init__(self, graph_paths=None, pos_enc_dim=16):
+    def __init__(self, paths, pos_dim=20):
         super(MSPDataset, self).__init__(name='Metabolic stability prediction dataset')
 
-        self.pos_enc_dim = pos_enc_dim
-        self.graphs = []
-        self.labels = []
-        self.FPs    = []
+        self.paths = paths
+        self.pos_dim = pos_dim
 
-        self.names = []
-
-        for graph_path in graph_paths:
-            name = graph_path.split('/')[-1]
-            self.names.append( name )
-
-            self.graph, self.label = load_graphs(graph_path)
-            self.graph = self.positional_encoding( self.graph[0] )
-
-            self.graphs.append( self.graph )
-            self.labels.append( self.label['label'] )
-            self.FPs.append(  self.label['g_morgan'] )
-
-        assert len(self.graphs) == len(self.names), 'Difference length of graphs & labels'
-
-
-    def positional_encoding(self, g):
-        pos_enc = dgl.random_walk_pe(g, self.pos_enc_dim)
-        g.ndata['pos_enc'] = pos_enc
+    def get_rwpe(self, g):
+        g.ndata['pos_enc'] = dgl.random_walk_pe(g, self.pos_dim)
         return g
 
-    def __getlabels__(self):
-        return self.names
-
     def __getitem__(self, idx):
-        return self.graphs[idx], self.FPs[idx], self.labels[idx], self.names[idx]
+        path = self.paths[idx]
+        name = path.split('/')[-1]
+        g, label = load_graphs( path )
+        g, label = g[0], label['y']
+
+        g = self.get_rwpe( g )
+
+        return g, label, name
 
     def __len__(self):
-        return len(self.names)
+        return len(self.paths)

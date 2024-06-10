@@ -47,13 +47,12 @@ class MultiHeadAttentionLayer(nn.Module):
         return h_out, e_out
 
 class GraphTransformerLayer(nn.Module):
-    def __init__(self, num_hidden_channels, residual=True, num_attention_heads=4, dropout_rate=0.1, num_layers=4):
-        super(GraphTransformerModule, self).__init__()
+    def __init__(self, num_hidden_channels, residual=True, num_attention_heads=4, dropout_rate=0.1):
+        super(GraphTransformerLayer, self).__init__()
         self.activ_fn = nn.SiLU()
         self.residual = residual
         self.num_attention_heads = num_attention_heads
         self.dropout_rate = dropout_rate
-        self.num_layers = num_layers
 
         self.num_hidden_channels, self.num_output_feats = num_hidden_channels, num_hidden_channels
 
